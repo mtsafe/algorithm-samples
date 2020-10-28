@@ -1,2 +1,5 @@
 # algorithm-samples
-Collection of algorithm code
+A collection of algorithm code
+## List of Algorithm code by Language
+### C
+1. permutations.c
