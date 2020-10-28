@@ -18,7 +18,7 @@ Parameters:
 */
 void permutations(int set[], int target[], int n, int r, int level) {
    int n_l, r_l;
-   int indx, tmp_indx, cnt;
+   int set_indx, tmp_indx, cnt;
    int *tmp_array;
    int target_offset;
    size_t block_size;
@@ -27,10 +27,9 @@ void permutations(int set[], int target[], int n, int r, int level) {
    n_l = n - level;
    r_l = r - level;
    block_size = (2 * level + 1) * sizeof(char);
-   indent = (int *)malloc(block_size);
-   for (indx=0; indx<block_size-1; indx++)
-      indent[indx] = ' ';
-   indent[indx] = NULL;
+   indent = (char *)malloc(block_size);
+   memset(indent,' ', block_size-1);
+   indent[block_size-1] = 0;
 
    printf("%spermutations(", indent);
    print_permutation(set, n_l, 1);
@@ -40,13 +39,13 @@ void permutations(int set[], int target[], int n, int r, int level) {
    // block_size = (n_l * r_l) * sizeof(int);
 
    if (r_l==1){
-      for (indx=0; indx<n_l; indx++) {
-         target_offset = r * indx + level;
-         target[target_offset] = set[indx];
-   printf("%s1 Put value %i at %p\n", indent, set[indx], target + target_offset);
-   printf("%s1 Indx %i offset is: %i with value %i\n", indent, indx, target_offset, set[indx]);
+      for (set_indx=0; set_indx<n_l; set_indx++) {
+         target_offset = r * set_indx + level;
+         target[target_offset] = set[set_indx];
+   printf("%s1 Put value %i at %p\n", indent, set[set_indx], target + target_offset);
+   printf("%s1   Indx %i offset is: %i with value %i\n", indent, set_indx, target_offset, set[set_indx]);
       }
-   printf("%s1 return; }\n", indent);
+   printf("%s1   return; }\n", indent);
    free(indent);
       return ;
    }
@@ -54,26 +53,28 @@ void permutations(int set[], int target[], int n, int r, int level) {
    level++;
    // allocate temporary memory
    block_size = (n_l - 1) * sizeof(int);
-   tmp_array = (char *)malloc(block_size);
-   for (indx=0; indx<n_l; indx++) {
+   tmp_array = (int *)malloc(block_size);
+   for (set_indx=0; set_indx<n_l; set_indx++) {
       // put each element to start
       for (cnt=0; cnt<n_l-1; cnt++) {
-         target_offset = r * ((n_l - 1) * indx + cnt);
-         target[target_offset] = set[indx];
-   printf("%s2 Put value %i at %p\n", indent, set[indx], target + target_offset);
-   printf("%s2 Indx %i offset is: %i with value %i\n", indent, indx, target_offset, set[indx]);
+         target_offset = r * ((n_l - 1) * set_indx + cnt);
+         target[target_offset] = set[set_indx];
+   printf("%s2 Put value %i at %p\n", indent, set[set_indx], target + target_offset);
+   printf("%s2   Indx %i offset is: %i with value %i\n", indent, set_indx, target_offset, set[set_indx]);
       }
-         // target[r * ((n_l - 1) * indx + cnt)] = set[indx];
+         // target[r * ((n_l - 1) * indx + cnt)] = set[set_indx];
       // permute the remaining spaces
          // first, save the remaining numbers to the tmp memory
       for (cnt=0, tmp_indx=0; cnt<n_l; cnt++) {
-         if (cnt == indx) continue;
+         if (cnt == set_indx) continue;
          tmp_array[tmp_indx] = set[cnt];
          tmp_indx++;
       }
          // second, recurse to do the remainding numbers
-      target_offset = r * indx;
-   printf("%s3 Indx %i with target %p + offset %i\n", indent, indx, target, target_offset);
+      // target_offset = r * set_indx;
+      // target_offset = r * n_l * set_indx;
+      target_offset = r * (n - 1) * set_indx;
+   printf("%s3 Indx %i with target %p + offset %i\n", indent, set_indx, target, target_offset);
       permutations(tmp_array, target + target_offset, n, r, level);
    }
    // clean up and return
@@ -98,7 +99,7 @@ void print_permutation(int *perm, int r, int nPr) {
 
 int main(int argc, char* argv[]) {
    int *perm;
-   int indx;
+   int num;
    int n = 3, r = 2;
    int set[] = {1, 2, 3};
    int nPr;
@@ -134,8 +135,8 @@ int main(int argc, char* argv[]) {
 
    // calculate the size of memory to hold the permutations
    nPr = 1;
-   for (indx = n; indx > (n - r); indx--)
-      nPr *= indx;
+   for (num = n; num > (n - r); num--)
+      nPr *= num;
    block_size = nPr * sizeof(int);
    printf("block_size is %zu\n", block_size);
    
