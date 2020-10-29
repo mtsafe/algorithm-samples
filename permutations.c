@@ -4,6 +4,7 @@
 
 void permutations(int [], int [], int, int, int);
 void print_permutation(int *, int, int);
+int main(int, char *[]);
 
 /*
 The number of permutations of n objects taken r at a time
@@ -23,6 +24,7 @@ void permutations(int set[], int target[], int n, int r, int level) {
    int target_offset;
    size_t block_size;
    char *indent;
+   unsigned b4;
 
    n_l = n - level;
    r_l = r - level;
@@ -33,7 +35,8 @@ void permutations(int set[], int target[], int n, int r, int level) {
 
    printf("%spermutations(", indent);
    print_permutation(set, n_l, 1);
-   printf(", %p, %i, %i, %i) {\n", target, n, r, level);
+   b4 = (unsigned int)0xFFFF & (unsigned int)target;
+   printf(", 0x%04x, %i, %i, %i) {\n", b4, n, r, level);
 
    if (r_l<1) return ;
    // block_size = (n_l * r_l) * sizeof(int);
@@ -42,7 +45,8 @@ void permutations(int set[], int target[], int n, int r, int level) {
       for (set_indx=0; set_indx<n_l; set_indx++) {
          target_offset = r * set_indx + level;
          target[target_offset] = set[set_indx];
-   printf("%s1 Put value %i at %p\n", indent, set[set_indx], target + target_offset);
+         b4 = (unsigned int)0xFFFF & (unsigned int)(target + target_offset);
+   printf("%s1 PUT value %i at 0x%04x\n", indent, set[set_indx], b4);
    printf("%s1   Indx %i offset is: %i with value %i\n", indent, set_indx, target_offset, set[set_indx]);
       }
    printf("%s1   return; }\n", indent);
@@ -59,7 +63,8 @@ void permutations(int set[], int target[], int n, int r, int level) {
       for (cnt=0; cnt<n_l-1; cnt++) {
          target_offset = r * ((n_l - 1) * set_indx + cnt);
          target[target_offset] = set[set_indx];
-   printf("%s2 Put value %i at %p\n", indent, set[set_indx], target + target_offset);
+         b4 = (unsigned int)0xFFFF & (unsigned int)(target + target_offset);
+   printf("%s2 PUT value %i at 0x%04x\n", indent, set[set_indx], b4);
    printf("%s2   Indx %i offset is: %i with value %i\n", indent, set_indx, target_offset, set[set_indx]);
       }
          // target[r * ((n_l - 1) * indx + cnt)] = set[set_indx];
@@ -74,13 +79,14 @@ void permutations(int set[], int target[], int n, int r, int level) {
       // target_offset = r * set_indx;
       // target_offset = r * n_l * set_indx;
       target_offset = r * (n - 1) * set_indx;
-   printf("%s3 Indx %i with target %p + offset %i\n", indent, set_indx, target, target_offset);
+      b4 = (unsigned int)0xFFFF & (unsigned int)target;
+   printf("%s3 Indx %i with target 0x%04x + offset %i\n", indent, set_indx, b4, target_offset);
       permutations(tmp_array, target + target_offset, n, r, level);
    }
    // clean up and return
    printf("%s4 return; }\n", indent);
-   free(indent);
    free(tmp_array);
+   free(indent);
    return ;
 }
 
@@ -97,7 +103,7 @@ void print_permutation(int *perm, int r, int nPr) {
    return ;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
    int *perm;
    int num;
    int n = 3, r = 2;
