@@ -33,7 +33,7 @@ void destroyPerson(person *);
 void printRolodex(people *);
 int isEmpty(people *);
 void removePerson(people *, char *);
-int size(people *P);
+int rolodexSize(people *P);
 int main(int, char *[]);
 
 people *makeRolodex() {
@@ -83,51 +83,30 @@ void sortRolodex(people *P) {
     person *a, *b;
     int sorted = TRUE;
 
-    printf("BREAK 1\n"); fflush(stdout); printRolodex(P);
     a = P->first;
     if (a == NULL) return ;
     b = a->next;
     if (b == NULL) return ;
 
-    printf("BREAK 2\n"); fflush(stdout); printRolodex(P);
     do {
-    printf("BREAK 3\n"); fflush(stdout);
         validateRolodex(P);
-    printf("BREAK 4\n"); fflush(stdout);
         if (strcmp(a->name, b->name) < 0) {
             a = b;
             b = a->next;
-    printf("BREAK 5\n"); fflush(stdout);
         } else {
-printf("b == NULL is %i; b->next == NULL is %i; !sorted is %i;\n", b == NULL, b == NULL ? -1 : b->next == NULL, !sorted);
-printf("%d people in rolodex.1\n\n", size(P));  fflush(stdout);
-     printRolodex(P);
-printf("%d people in rolodex.2\n\n", size(P));  fflush(stdout);
             swapRolodexPosition(P, a, b);
-printf("%d people in rolodex.3\n\n", size(P));  fflush(stdout);
-        validateRolodex(P);
-printf("%d people in rolodex.4\n\n", size(P));  fflush(stdout);
-     printRolodex(P);
-printf("%d people in rolodex.5\n\n", size(P));  fflush(stdout);
-printf("b == NULL is %i; b->next == NULL is %i; !sorted is %i;\n", b == NULL, b == NULL ? -1 : b->next == NULL, !sorted);
-printf("%d people in rolodex.6\n\n", size(P));  fflush(stdout);
+            validateRolodex(P);
             b = a->next;
             sorted = FALSE;
-printf("b == NULL is %i; b->next == NULL is %i; !sorted is %i;\n", b == NULL, b == NULL ? -1 : b->next == NULL, !sorted);
-    printf("BREAK 6\n"); fflush(stdout);
         }
 
-printf("b == NULL is %i; b->next == NULL is %i; !sorted is %i;\n", b == NULL, b == NULL ? -1 : b->next == NULL, !sorted);
         if ((b == NULL || b->next == NULL) && !sorted) {
             a = P->first;
             b = a->next;
             sorted = TRUE;
-    printf("BREAK 7\n"); fflush(stdout);
         }
-    printf("BREAK 8\n"); fflush(stdout);
-printf("b == NULL is %i; b->next == NULL is %i; !sorted is %i;\n", b == NULL, b == NULL ? -1 : b->next == NULL, !sorted);
-printf("The OR is %i; The AND is %i;\n", (b == NULL || b->next == NULL), ((b == NULL || b->next == NULL) && !sorted));
-    } while ((b != NULL && b->next != NULL) || !sorted);
+    // } while ((b != NULL && b->next != NULL) || !sorted);
+    } while (b != NULL || !sorted);
     printf("Sorted rolodex: %i.\n", sorted);
     fflush(stdout);
         validateRolodex(P);
@@ -149,6 +128,7 @@ void swapFirstLast(people *P, person *a, person *b) {
 
 void swapFirst(people *P, person *a, person *b) {
     person *tmp;
+
     P->first = b;                   // set the first link
     b->previous->next = a;          // set 1 next link
     a->previous = b->previous;      // set 3 previous links
@@ -162,23 +142,23 @@ void swapFirst(people *P, person *a, person *b) {
 }
 
 void swapLast(people *P, person *a, person *b) {
-    person *tmp;
+    person tmp;
+
     P->last = a;                    // set the last link
-    a->next->previous = b;          // set 1 previous link
-    b->next = a->next;              // set 3 next links
-    a->next = NULL;
-    b->next->previous = a;
-    tmp = a->previous;              // set 3 previous links
-    a->previous = b->previous;
-    b->previous = tmp;
+//    tmp.next = b->next;             // tmp replaces a + b
+//    tmp.previous = a->previous;
+//    b->previous = tmp.previous;     // rotate a + b
+    b->previous = a->previous;     // rotate a + b
     b->previous->next = b;
+    b->next = a;
+ //   a->next = tmp.next;
+    a->previous = b;
+    a->next = NULL;
     return ;
 }
 
 void swapRolodexPosition(people *P, person *a, person *b) {
     person tmp;
-
-    printf("swapRolodexPosition STARTED.\n"); fflush(stdout);
 
     if (P==NULL || a==NULL || b==NULL) {
         fprintf(stderr, "error: unable to swap positions in rolodex.\n");
@@ -197,24 +177,19 @@ void swapRolodexPosition(people *P, person *a, person *b) {
     else if (P->last == b)
         swapLast(P, a, b);
     else {
-        tmp.next = a->next;            // tmp replaces a
+        tmp.next = b->next;             // tmp replaces a + b
         tmp.previous = a->previous;
-        b->previous->next = a;          // a replaces b
-        b->next->previous = a;
-        a->previous = b->previous;
-        a->next = b->next;
-        tmp.previous->next = b;          // b replaces tmp
-        tmp.next->previous = b;
-        b->previous = tmp.previous;
-        b->next = tmp.next;
+        b->previous = tmp.previous;     // rotate a + b
+        b->previous->next = b;
+        b->next = a;
+        a->next = tmp.next;
+        a->next->previous = a;
+        a->previous = b;
     }
-    printf("swapRolodexPosition XXXXXXXXX.\n"); fflush(stdout);
     validateRolodex(P);
-    printf("swapRolodexPosition COMPLETED.\n"); fflush(stdout);
 }
 
 void validateRolodex(people *P) {
-    printf("validateRolodex STARTED.\n"); fflush(stdout);
     person *a, *b;
     if ((P->first == NULL && (P->last != NULL || P->first->previous != NULL)) ||
         (P->last == NULL && (P->first != NULL || P->last->next != NULL))) {
@@ -225,27 +200,22 @@ void validateRolodex(people *P) {
     a = P->first;
     b = a->next;
     while (b!=NULL) {
-        printf("Validation Loop ...\n"); fflush(stdout);
         if (a->previous==a || a->next==a) {
-            fprintf(stderr, "error: %s is self-referential.\n", a->name);
-            fflush(stderr);
+            fprintf(stderr, "error: %s is self-referential.\n", a->name); fflush(stderr);
             return ;            
         }
         if (b->previous==b || b->next==b) {
-            fprintf(stderr, "error: %s is self-referential.\n", b->name);
-            fflush(stderr);
+            fprintf(stderr, "error: %s is self-referential.\n", b->name); fflush(stderr);
             return ;            
         }
         if (a->next!=b || b->previous!=a) {
-            fprintf(stderr, "error: unmatched links %s and %s.\n", a->name, b->name);
-            fflush(stderr);
+            fprintf(stderr, "error: unmatched links %s and %s.\n", a->name, b->name); fflush(stderr);
             return ;
         }
         a = b;
         b = a->next;
     }
     printf("Validated rolodex.\n"); fflush(stdout);
-    printf("validateRolodex COMPLETED.\n"); fflush(stdout);
     return ;
 }
 
@@ -254,8 +224,7 @@ person *makePerson(char *name, char *address, char *phone) {
 
     dude = (person *)malloc(sizeof(person));
     if (dude == NULL) {
-        fprintf(stderr, "error: unable to allocate memory.\n");
-        fflush(stderr);
+        fprintf(stderr, "error: unable to allocate memory.\n"); fflush(stderr);
         return NULL;
     }
 
@@ -265,8 +234,7 @@ person *makePerson(char *name, char *address, char *phone) {
     strcpy(dude->address, address);
     strcpy(dude->phone, phone);
     printf("Made: %-20s : %-25s : %-20s\n",
-        dude->name, dude->address, dude->phone);
-    fflush(stdout);
+        dude->name, dude->address, dude->phone); fflush(stdout);
     return dude;
 }
 
@@ -278,11 +246,12 @@ void printRolodex(people *P) {
     person* a = P->first;
 
     validateRolodex(P);
+    printf("\n--- %d people in rolodex ---\n", rolodexSize(P));
     while(a != NULL) {
         printf("%-20s : %-25s : %-20s\n", a->name, a->address, a->phone);
         a = a->next;
-        fflush(stdout);
     }
+    fflush(stdout);
 }
 
 int isEmpty(people *P){
@@ -294,8 +263,7 @@ void removePerson(people *P, char *name) {
 
     a = P->first;
     if (a == NULL) {
-        fprintf(stderr, "error: %s is not in the rolodex.\n", name);
-        fflush(stderr);
+        fprintf(stderr, "error: %s is not in the rolodex.\n", name); fflush(stderr);
         return;
     }
 
@@ -306,20 +274,18 @@ void removePerson(people *P, char *name) {
             if (a->next != NULL) a->next->previous = a->previous;
             if (a->previous != NULL) a->previous->next = a->next;
             destroyPerson(a);
-            printf("%s is removed from the rolodex.", name);
-            fflush(stdout);
+            printf("%s is removed from the rolodex.\n", name); fflush(stdout);
             return;
         }        
         if (a->next == NULL) {
-            fprintf(stderr, "error: %s is not in the rolodex.\n", name);
-            fflush(stderr);
+            fprintf(stderr, "error: %s is not in the rolodex.\n", name); fflush(stderr);
             return;
         }
         a = a->next;
     }
 }
 
-int size(people *P) {
+int rolodexSize(people *P) {
     person* a = P->first;
     int cnt = 0;
     
@@ -335,8 +301,7 @@ int main(int argc, char *argv[]) {
     person *dude;
 
     if(isEmpty(rolodex)) printf("PASSED: Empty rolodex at start.\n");
-    printf("%d people in rolodex.\n\n", size(rolodex)); 
-    fflush(stdout);
+    printf("%d people in rolodex.\n\n", rolodexSize(rolodex)); fflush(stdout);
 
     dude=addPerson(rolodex, "Chris Kringle", "1000 North Pole", "1-800-4SANTAC");
     if (dude==NULL) return-1;
@@ -349,15 +314,11 @@ int main(int argc, char *argv[]) {
     dude=addPerson(rolodex, "Superman", "Metropolis, Illinois", "618-555-5555"); 
     if (dude==NULL) return -1;
     printRolodex(rolodex);
-    printf("%d people in rolodex.\n\n", size(rolodex)); 
-    fflush(stdout);
 
     removePerson(rolodex, "Superman");
     removePerson(rolodex, "Buffalo Bill");
     removePerson(rolodex, "Herman Munster");
     printRolodex(rolodex);
-    printf("%d people in rolodex.\n\n", size(rolodex)); 
-    fflush(stdout);
 
     return 0;
 }
