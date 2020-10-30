@@ -89,13 +89,11 @@ void sortRolodex(people *P) {
     if (b == NULL) return ;
 
     do {
-        validateRolodex(P);
         if (strcmp(a->name, b->name) < 0) {
             a = b;
             b = a->next;
         } else {
             swapRolodexPosition(P, a, b);
-            validateRolodex(P);
             b = a->next;
             sorted = FALSE;
         }
@@ -107,10 +105,8 @@ void sortRolodex(people *P) {
         }
     // } while ((b != NULL && b->next != NULL) || !sorted);
     } while (b != NULL || !sorted);
-    printf("Sorted rolodex: %i.\n", sorted);
-    fflush(stdout);
-        validateRolodex(P);
-     printRolodex(P);
+    printf("Sorted rolodex.\n"); fflush(stdout);
+    printRolodex(P);
     return ;
 }
 
@@ -129,29 +125,20 @@ void swapFirstLast(people *P, person *a, person *b) {
 void swapFirst(people *P, person *a, person *b) {
     person *tmp;
 
-    P->first = b;                   // set the first link
-    b->previous->next = a;          // set 1 next link
-    a->previous = b->previous;      // set 3 previous links
-    b->previous = NULL;
-    a->next->previous = b;
-    tmp = a->next;                  // set 3 next links
+    P->first = b;
     a->next = b->next;
-    b->next = tmp;
     a->next->previous = a;
+    a->previous = b;
+    b->next = a;
+    b->previous = NULL;
     return ;
 }
 
 void swapLast(people *P, person *a, person *b) {
-    person tmp;
-
-    P->last = a;                    // set the last link
-//    tmp.next = b->next;             // tmp replaces a + b
-//    tmp.previous = a->previous;
-//    b->previous = tmp.previous;     // rotate a + b
-    b->previous = a->previous;     // rotate a + b
+    P->last = a;
+    b->previous = a->previous;
     b->previous->next = b;
     b->next = a;
- //   a->next = tmp.next;
     a->previous = b;
     a->next = NULL;
     return ;
@@ -177,16 +164,13 @@ void swapRolodexPosition(people *P, person *a, person *b) {
     else if (P->last == b)
         swapLast(P, a, b);
     else {
-        tmp.next = b->next;             // tmp replaces a + b
-        tmp.previous = a->previous;
-        b->previous = tmp.previous;     // rotate a + b
+        b->previous = a->previous;
         b->previous->next = b;
-        b->next = a;
-        a->next = tmp.next;
+        a->next = b->next;
         a->next->previous = a;
+        b->next = a;
         a->previous = b;
     }
-    validateRolodex(P);
 }
 
 void validateRolodex(people *P) {
@@ -313,11 +297,11 @@ int main(int argc, char *argv[]) {
     if (dude==NULL) return -1;
     dude=addPerson(rolodex, "Superman", "Metropolis, Illinois", "618-555-5555"); 
     if (dude==NULL) return -1;
-    printRolodex(rolodex);
+    // printRolodex(rolodex);
 
     removePerson(rolodex, "Superman");
     removePerson(rolodex, "Buffalo Bill");
-    removePerson(rolodex, "Herman Munster");
+    removePerson(rolodex, "George Washington");
     printRolodex(rolodex);
 
     return 0;
