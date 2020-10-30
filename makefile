@@ -1,21 +1,21 @@
 test : test_double_linked_list test_permutations
 test_double_linked_list: double_linked_list
 	@echo "=== test_double_linked_list ==="
-	./double_linked_list | more
+	./double_linked_list 2>&1 | more
 	@echo "==============================="
 test_permutations: permutations
 	@echo "=== test_permutations  ========"
-	./permutations 1 1 | more
+	./permutations 1 1 2>&1 | more
 	@echo "-------------------------------"
-	./permutations 2 1 | more
+	./permutations 2 1 2>&1 | more
 	@echo "-------------------------------"
-	./permutations 2 2 | more
+	./permutations 2 2 2>&1 | more
 	@echo "-------------------------------"
-	./permutations 3 1 | more
+	./permutations 3 1 2>&1 | more
 	@echo "-------------------------------"
-	./permutations 3 2 | more
+	./permutations 3 2 2>&1 |  more
 	@echo "-------------------------------"
-	./ permutations 3 3 | more
+	./ permutations 3 3 2>&1 | more
 	@echo "==============================="
 double_linked_list : double_linked_list.c
 	gcc -o double_linked_list double_linked_list.c
